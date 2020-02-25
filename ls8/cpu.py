@@ -13,12 +13,16 @@ class CPU:
 
     #In CPU, add method ram_read() and ram_write() that access the RAM inside the CPU object.
     #ram_read() should accept the address to read and return the value stored there.
-    def ram_read(self, address):
-        pass
+    #Inside the CPU, there are two internal registers used for memory operations: 
+    # the Memory Address Register (MAR) and the Memory Data Register (MDR).
+    #The MAR contains the address that is being read or written to.
+    def ram_read(self, MAR):
+        return self.ram[MAR]
 
     #raw_write() should accept a value to write, and the address to write it to.
-    def ram_write(self, data):
-        pass
+    #The MDR contains the data that was read or the data to write.
+    def ram_write(self, MDR, MAR):
+        self.ram[MDR] = MAR
 
     def load(self):
         """Load a program into memory."""
