@@ -7,6 +7,17 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
+        self.reg = [0] * 8 #8 general purpose registers
+        self.pc = 0 #also add properties for any internal registers you need, e.g. PC.
+        self.ram = [0] * 256 #hold 256 bytes of memory (values 0 to 255)
+
+    #In CPU, add method ram_read() and ram_write() that access the RAM inside the CPU object.
+    #ram_read() should accept the address to read and return the value stored there.
+    def ram_read(self, address):
+        pass
+
+    #raw_write() should accept a value to write, and the address to write it to.
+    def ram_write(self, data):
         pass
 
     def load(self):
