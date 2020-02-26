@@ -6,6 +6,7 @@ import sys
 HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
+MUL = 0b10100010
 
 class CPU:
     """Main CPU class."""
@@ -41,6 +42,12 @@ class CPU:
             0b10000010, # LDI R0,8
             0b00000000,
             0b00001000,
+            0b10000010, # LDI R1,9
+            0b00000001,
+            0b00001001,
+            0b10100010, # MUL R0,R1
+            0b00000000,
+            0b00000001,
             0b01000111, # PRN R0
             0b00000000,
             0b00000001, # HLT
@@ -111,7 +118,10 @@ class CPU:
                 sys.exit(0)
                 self.pc += 1
 
-            #LDI sets the value of a register to an integer
+            #LDI sets the value of a register to an 
+            #address is self.ram[self.pc + 1]
+            #value is self.ram[self.pc + 2]
+            #so self.reg[operand_a] = operand_b is technically self.reg[address] = value
             elif opcode == LDI: 
                 self.reg[operand_a] = operand_b
                 self.pc += 3
@@ -119,7 +129,13 @@ class CPU:
             #Print numeric value stored in the given register. 
             #Print to the console the decimal integer value that is stored in the given register.
             elif opcode == PRN: 
+                #at this point value is in self.reg[operand_a] as a result of line 119
                 print(self.reg[operand_a])
                 self.pc +=2
+
+            #Multiply the values in two registers together and store the result in registerA.
+            elif opcode == MUL: 
+                self.reg[operand_a] *= self.reg[operand_b]
+                self.pc += 3
 
             
