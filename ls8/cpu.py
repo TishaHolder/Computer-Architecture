@@ -30,13 +30,46 @@ class CPU:
     def ram_write(self, MDR, MAR):
         self.ram[MDR] = MAR
 
-    def load(self):
+    """
+    In load(), you will now want to use those command line arguments to open a file, read in its 
+    contents line by line, and save appropriate data into RAM.
+    """
+    def load(self, file):
         """Load a program into memory."""
 
-        address = 0
+        try:
+            address = 0
+
+            with open(file) as f:
+                for line in f:
+                    #As you process lines from the file, you should be on the lookout for blank lines 
+                    # (ignore them), and you should ignore everything after a #, since that's a comment.
+                    # Parse out comments
+                    comment_split = line.strip().split("#")
+
+                    # Cast the numbers from strings to ints
+                    value = comment_split[0].strip()
+
+                    # Ignore blank lines
+                    if value == "":
+                        continue
+
+                    #You'll have to convert the binary strings to integer values to store in RAM. 
+                    #The built-in int() function can do that when you specify a number base as the 
+                    #second argument:
+                    int_value = int(value, 2)
+
+                    #store int value in RAM
+                    memory[address] = int_value
+                    address += 1
+                    
+        
+        except FileNotFoundError:
+            print(f"{sys.argv[0]}: {file} not found")
+            sys.exit(2)
 
         # For now, we've just hardcoded a program:
-
+        """unhardcode the program
         program = [
             # From print8.ls8
             0b10000010, # LDI R0,8
@@ -51,7 +84,7 @@ class CPU:
             0b01000111, # PRN R0
             0b00000000,
             0b00000001, # HLT
-        ]
+        ]"""
 
         for instruction in program:
             self.ram[address] = instruction
