@@ -2,6 +2,11 @@
 
 import sys
 
+#Add the HLT instruction definition to cpu.py so that you can refer to it by name instead of by numeric value.
+HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+
 class CPU:
     """Main CPU class."""
 
@@ -75,6 +80,46 @@ class CPU:
 
         print()
 
+    #This is the workhorse function of the entire processor. It's the most difficult part to write.
     def run(self):
-        """Run the CPU."""
-        pass
+        """Run the CPU."""        
+        running = True
+
+        while True:
+            #It needs to read the memory address that's stored in register PC, and store that result in IR, 
+            # the Instruction Register. This can just be a local variable in run().
+            IR = self.ram[self.pc]
+            
+            opcode = IR
+            #Using ram_read(), read the bytes at PC+1 and PC+2 from RAM into variables operand_a and 
+            #operand_b in case the instruction needs them.
+
+            #Some instructions requires up to the next one byte of data after the PC in memory to 
+            #perform operations on.
+            operand_a = self.ram_read(self.pc + 1) 
+
+            #Some instructions requires up to the next two bytes of data after the PC in memory to 
+            #perform operations on.
+            operand_b = self.ram_read(self.pc + 2) 
+
+            #Then, depending on the value of the opcode, perform the actions needed for the instruction 
+            #per the LS-8 spec. Maybe an if-elif cascade...? There are other options, too.
+
+            #We can consider HLT to be similar to Python's exit() in that we stop whatever we are doing, 
+            # wherever we are.
+            if opcode == HLT:
+                sys.exit(0)
+                self.pc += 1
+
+            #LDI sets the value of a register to an integer
+            elif opcode == LDI: 
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+
+            #Print numeric value stored in the given register. 
+            #Print to the console the decimal integer value that is stored in the given register.
+            elif opcode == PRN: 
+                print(self.reg[operand_a])
+                self.pc +=2
+
+            
