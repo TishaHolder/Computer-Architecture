@@ -3,44 +3,69 @@
 import sys
 
 #Add the HLT instruction definition to cpu.py so that you can refer to it by name instead of by numeric value.
-HLT = 0b00000001
-LDI = 0b10000010
+HLT = 0b00000001 #HLT: halt the CPU and exit the emulator.
+LDI = 0b10000010 #Set the value of a register to an integer.
+
+#Print numeric value stored in the given register.
+#Print to the console the decimal integer value that is stored in the given register.
 PRN = 0b01000111
+
+#MUL registerA registerB
+#Multiply the values in two registers together and store the result in registerA.
 MUL = 0b10100010
+
+#Push the value in the given register on the stack.
+#Decrement the SP.
+#Copy the value in the given register to the address pointed to by SP.
 PUSH = 0b01000101
+
+#Pop the value at the top of the stack into the given register.
+#Copy the value from the address pointed to by SP to the given register.
+#Increment SP.
 POP = 0b01000110
+
+# R7 is reserved as the stack pointer (SP)
+# The SP points at the value at the top of the stack (most recently pushed), 
+# or at address F4 (Key pressed) F4 Holds the most recent key pressed on the keyboard if the stack is empty.
+# Keyboard interrupt. This interrupt triggers when a key is pressed. The value of the key pressed 
+# is stored in address 0xF4.
 SP = 7  # Stack pointer is R7
+
 
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
+
+        """
+        8 general-purpose 8-bit numeric registers R0-R7.
+            R5 is reserved as the interrupt mask (IM)
+            R6 is reserved as the interrupt status (IS)
+            R7 is reserved as the stack pointer (SP)
+        These registers only hold values between 0-255. After performing math on registers in the emulator, 
+        bitwise-AND the result with 0xFF (255) to keep the register values in that range.
+        """
+
         self.reg = [0] * 8 #8 general purpose registers
         self.pc = 0 #also add properties for any internal registers you need, e.g. PC.
         self.ram = [0] * 256 #hold 256 bytes of memory (values 0 to 255)
 
-        #set up branch table
-        self.branchtable = {}
-        self.branchtable[HLT] = self.handle_hlt
-        self.branchtable[LDI] = self.handle_ldi
-        self.branchtable[PRN] = self.handle_prn
-        self.branchtable[MUL] = self.handle_mul
-
-        self.branchtable[PUSH] = self.handle_push
-        self.branchtable[POP] = self.handle_pop
 
     #In CPU, add method ram_read() and ram_write() that access the RAM inside the CPU object.
     #ram_read() should accept the address to read and return the value stored there.
     #Inside the CPU, there are two internal registers used for memory operations: 
-    # the Memory Address Register (MAR) and the Memory Data Register (MDR).
+    #the Memory Address Register (MAR) and the Memory Data Register (MDR).
     #The MAR contains the address that is being read or written to.
     def ram_read(self, MAR):
+        #The MAR contains the address that is being read from
         return self.ram[MAR]
 
     #raw_write() should accept a value to write, and the address to write it to.
     #The MDR contains the data that was read or the data to write.
     def ram_write(self, MDR, MAR):
+        #MDR holds the value to write
+        #MAR holds the memory address we are writing to
         self.ram[MDR] = MAR
 
     """
@@ -73,7 +98,7 @@ class CPU:
                     int_value = int(value, 2)
 
                     #store int value in RAM
-                    memory[address] = int_value
+                    self.ram[address] = int_value
                     address += 1
                     
         
@@ -102,7 +127,6 @@ class CPU:
         for instruction in program:
             self.ram[address] = instruction
             address += 1"""
-
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -133,141 +157,58 @@ class CPU:
 
         print()
 
-    def handle_hlt(self):
-        #We can consider HLT to be similar to Python's exit() in that we stop whatever we are doing, 
-        # wherever we are.        
-        sys.exit(0)
-        self.pc += 1
-
-    def handle_ldi(self):    
-
-        #Some instructions requires up to the next one byte of data after the PC in memory to 
-        #perform operations on.
-        operand_a = self.ram_read(self.pc + 1)
-
-        #Some instructions requires up to the next two bytes of data after the PC in memory to 
-        #perform operations on.
-        operand_b = self.ram_read(self.pc + 2)  
-
-        self.reg[operand_a] = operand_b
-        self.pc += 3
-
-    def handle_prn(self): 
-        #Some instructions requires up to the next one byte of data after the PC in memory to 
-        #perform operations on.
-        operand_a = self.ram_read(self.pc + 1)
-                    
-        #at this point value is in self.reg[operand_a] as a result of line 119
-        print(self.reg[operand_a])
-        self.pc +=2
-
-    def handle_mul(self):
-        #Some instructions requires up to the next one byte of data after the PC in memory to 
-        #perform operations on.
-        operand_a = self.ram_read(self.pc + 1)
-
-        #Some instructions requires up to the next two bytes of data after the PC in memory to 
-        #perform operations on.
-        operand_b = self.ram_read(self.pc + 2) 
-
-        #Multiply the values in two registers together and store the result in registerA.           
-        self.reg[operand_a] *= self.reg[operand_b]
-        self.pc += 3
-
-    #Step 10: Implement System Stack
-    def handle_push(self):
-        # Grab the register argument
-        register = ram[pc + 1]
-        val = reg[register]
-        # Decrement the SP.
-        reg[SP] -= 1
-        # Copy the value in the given register to the address pointed to by SP.
-        ram[reg[SP]] = val
-        pc += 2 
-       
-
-
-    def handle_pop(self):
-        # Graph the value from the top of the stack
-        register = ram[pc + 1]
-        val = ram[reg[SP]]
-        # Copy the value from the address pointed to by SP to the given register.
-        reg[register] = val
-        # Increment SP.
-        reg[SP] += 1
-        pc += 2
-
-       
 
     #This is the workhorse function of the entire processor. It's the most difficult part to write.
     def run(self):
         """Run the CPU."""        
         running = True
 
-        #Step 9: Beautify your run() loop
         while True:
             #It needs to read the memory address that's stored in register PC, and store that result in IR, 
             # the Instruction Register. This can just be a local variable in run().
-            
             IR = self.ram[self.pc]
             
-            #opcode = IR
+            opcode = IR
             #Using ram_read(), read the bytes at PC+1 and PC+2 from RAM into variables operand_a and 
             #operand_b in case the instruction needs them.
 
             #Some instructions requires up to the next one byte of data after the PC in memory to 
             #perform operations on.
-            #operand_a = self.ram_read(self.pc + 1)
+            operand_a = self.ram_read(self.pc + 1) 
 
             #Some instructions requires up to the next two bytes of data after the PC in memory to 
             #perform operations on.
-            #operand_b = self.ram_read(self.pc + 2) 
+            operand_b = self.ram_read(self.pc + 2) 
 
             #Then, depending on the value of the opcode, perform the actions needed for the instruction 
             #per the LS-8 spec. Maybe an if-elif cascade...? There are other options, too.
 
-            IR = HLT
-            self.branchtable[IR]
-
-            IR = LDI
-            self.branchtable[IR]
-
-            IR = PRN
-            self.branchtable[IR]
-
-            IR = MUL
-            self.branchtable[IR]
-
-            IR = PUSH
-            self.branchtable[IR]
-
-            IR = POP
-            self.branchtable[IR]
-
             #We can consider HLT to be similar to Python's exit() in that we stop whatever we are doing, 
             # wherever we are.
-            """if opcode == HLT:
+            if opcode == HLT:
                 sys.exit(0)
-                self.pc += 1"""
+                self.pc += 1
 
-            #LDI sets the value of a register to an 
-            #address is self.ram[self.pc + 1]
-            #value is self.ram[self.pc + 2]
+            #LDI sets the value of a register to an integer
+            #address or operand_a is self.ram[self.pc + 1]
+            #value or operand_b is self.ram[self.pc + 2]
             #so self.reg[operand_a] = operand_b is technically self.reg[address] = value
-            """elif opcode == LDI: 
+            elif opcode == LDI: 
                 self.reg[operand_a] = operand_b
-                self.pc += 3"""
+                #+ 3 because operand_a has the bytes at PC+1 and operand_b has the bytes at PC+2 
+                self.pc += 3
 
             #Print numeric value stored in the given register. 
             #Print to the console the decimal integer value that is stored in the given register.
-            """elif opcode == PRN: 
-                #at this point value is in self.reg[operand_a] as a result of line 119
+            elif opcode == PRN:                
                 print(self.reg[operand_a])
-                self.pc +=2"""
+                self.pc +=2
 
             #Multiply the values in two registers together and store the result in registerA.
-            """elif opcode == MUL: 
+            elif opcode == MUL: 
                 self.reg[operand_a] *= self.reg[operand_b]
-                self.pc += 3"""
+                #+ 3 because operand_a has the bytes at PC+1 and operand_b has the bytes at PC+2 
+                self.pc += 3
 
             
+
