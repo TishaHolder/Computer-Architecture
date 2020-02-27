@@ -7,6 +7,9 @@ HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
+SP = 7  # Stack pointer is R7
 
 class CPU:
     """Main CPU class."""
@@ -23,6 +26,9 @@ class CPU:
         self.branchtable[LDI] = self.handle_ldi
         self.branchtable[PRN] = self.handle_prn
         self.branchtable[MUL] = self.handle_mul
+
+        self.branchtable[PUSH] = self.handle_push
+        self.branchtable[POP] = self.handle_pop
 
     #In CPU, add method ram_read() and ram_write() that access the RAM inside the CPU object.
     #ram_read() should accept the address to read and return the value stored there.
@@ -168,11 +174,37 @@ class CPU:
         self.reg[operand_a] *= self.reg[operand_b]
         self.pc += 3
 
+    #Step 10: Implement System Stack
+    def handle_push(self):
+        # Grab the register argument
+        register = ram[pc + 1]
+        val = reg[register]
+        # Decrement the SP.
+        reg[SP] -= 1
+        # Copy the value in the given register to the address pointed to by SP.
+        ram[reg[SP]] = val
+        pc += 2 
+       
+
+
+    def handle_pop(self):
+        # Graph the value from the top of the stack
+        register = ram[pc + 1]
+        val = ram[reg[SP]]
+        # Copy the value from the address pointed to by SP to the given register.
+        reg[register] = val
+        # Increment SP.
+        reg[SP] += 1
+        pc += 2
+
+       
+
     #This is the workhorse function of the entire processor. It's the most difficult part to write.
     def run(self):
         """Run the CPU."""        
         running = True
 
+        #Step 9: Beautify your run() loop
         while True:
             #It needs to read the memory address that's stored in register PC, and store that result in IR, 
             # the Instruction Register. This can just be a local variable in run().
@@ -204,6 +236,12 @@ class CPU:
             self.branchtable[IR]
 
             IR = MUL
+            self.branchtable[IR]
+
+            IR = PUSH
+            self.branchtable[IR]
+
+            IR = POP
             self.branchtable[IR]
 
             #We can consider HLT to be similar to Python's exit() in that we stop whatever we are doing, 
