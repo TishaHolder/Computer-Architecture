@@ -341,7 +341,27 @@ class CPU:
 
                 #Set the PC to the address stored in the given register.
                 self.pc = address
-            
+            elif opcode == JEQ:
+                #If equal flag is set (true), jump to the address stored in the given register.
+                if self.reg[self.fl] == 0b00000001:
+                    address = self.reg[operand_a]
+
+                    #Set the PC to the address stored in the given register.
+                    self.pc = address
+                else:
+                    #else jump to the instruction that is 2 bytes ahead
+                    self.pc += 2
+
+            elif opcode == JNE:
+                #If E flag is clear (false, 0), jump to the address stored in the given register.
+                if self.reg[self.fl] == 0b00000000: 
+                    address = self.reg[operand_a] 
+
+                    #Set the PC to the address stored in the given register.
+                    self.pc = address 
+                else:
+                    #else jump to the instruction that is 2 bytes ahead
+                    self.pc += 2
 
 
                 
