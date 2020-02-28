@@ -1,31 +1,31 @@
-10000010 # LDI R0,1
+10000010 # LDI R0,1 - sets the value in register 0 to 1
 00000000
+00000001 
+10000010 # LDI R1,2 - sets the value of register 1 to 2
 00000001
-10000010 # LDI R1,2
+00000010 
+01000101 # PUSH R0 - push the value in register 0 on to our stack(1)
+00000000
+01000101 # PUSH R1 - push the value in register 1 on to our stack(2)
 00000001
+10000010 # LDI R0,3 - set the value of register 0 to 3
+00000000
+00000011 
+01000110 # POP R0 - pop the value on the stack in to register 0
+00000000
+01000111 # PRN R0 - print the contents of R0 (2)
+00000000
+10000010 # LDI R0,4 - set the value of R0 to 4
+00000000
+00000100 
+01000101 # PUSH R0 - push the value in register 0 on to our stack (4)
+00000000
+01000110 # POP R2 - pop the value on the stack in to register 2 (4)
 00000010
-01000101 # PUSH R0
-00000000
-01000101 # PUSH R1
+01000110 # POP R1 - pop the value on the stack in to register 1 (1)
 00000001
-10000010 # LDI R0,3
-00000000
-00000011
-01000110 # POP R0
-00000000
-01000111 # PRN R0
-00000000
-10000010 # LDI R0,4
-00000000
-00000100
-01000101 # PUSH R0
-00000000
-01000110 # POP R2
+01000111 # PRN R2 - print the contents of register 2 (4)
 00000010
-01000110 # POP R1
-00000001
-01000111 # PRN R2
-00000010
-01000111 # PRN R1
+01000111 # PRN R1 - print the contents of register 1 (1)
 00000001
 00000001 # HLT

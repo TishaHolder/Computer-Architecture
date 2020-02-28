@@ -26,7 +26,7 @@ POP = 0b01000110
 
 # R7 is reserved as the stack pointer (SP)
 # The SP points at the value at the top of the stack (most recently pushed), 
-# or at address F4 (Key pressed) F4 Holds the most recent key pressed on the keyboard if the stack is empty.
+# or at address F4 (0xF4) (Key pressed) F4 Holds the most recent key pressed on the keyboard if the stack is empty.
 # Keyboard interrupt. This interrupt triggers when a key is pressed. The value of the key pressed 
 # is stored in address 0xF4.
 SP = 7  # Stack pointer is R7
@@ -45,10 +45,16 @@ class CPU:
             R7 is reserved as the stack pointer (SP)
         These registers only hold values between 0-255. After performing math on registers in the emulator, 
         bitwise-AND the result with 0xFF (255) to keep the register values in that range.
-        """
+        """        
 
-        self.reg = [0] * 8 #8 general purpose registers
-        self.pc = 0 #also add properties for any internal registers you need, e.g. PC.
+        #8 general purpose registers
+        #start counting from 0: R0 - R7
+        self.reg = [0] * 8 
+
+        #also add properties for any internal registers you need, e.g. PC (program counter) 
+        #lives at address 00
+        self.pc = 0 
+
         self.ram = [0] * 256 #hold 256 bytes of memory (values 0 to 255)
 
 
@@ -209,6 +215,40 @@ class CPU:
                 self.reg[operand_a] *= self.reg[operand_b]
                 #+ 3 because operand_a has the bytes at PC+1 and operand_b has the bytes at PC+2 
                 self.pc += 3
+
+            #Step 10: Implement System Stack
+            #R7 is reserved for the Stack Pointer
+            #Stack pointer points at 00 and when decremented it goes up to FF
+            #The SP points at the value at the top of the stack (most recently pushed), or at 
+            #address F4 if the stack is empty.
+            elif opcode == PUSH:
+                # grab the register argument
+                #pc + 1 - the program counter is going to grab the register that we are looking at
+                register = self.ram[self.pc + 1] #get register number from memory (for eg. R0)
+                #then we can get our value from that register                
+                val = self.reg[register] #then we look in that register to get the value that we are going to push
+                # Decrement the SP or stack pointer => R7
+                # the SP holds the address of wherever the top of our stack is
+                self.reg[SP] -= 1
+                # Copy the value in the given register to the address pointed to by SP.
+                # push the value in the given register on to our stack
+                # set that value to the value we got from our register
+                self.ram[self.reg[SP]] = val #points to the address that is at the top of our stack
+                self.pc += 2        
+
+            elif opcode == POP:
+                #grab the value from the top of the stack
+                #this is where we are going to put the value that we pop off
+                register = self.ram[self.pc + 1]
+                #pop the value at the top of the stack (pointed to by SP) into the given register
+                val = self.ram[self.reg[SP]]
+                # Copy the value from the address pointed to by SP to the given register.
+                self.reg[register] = val
+                # Increment SP.
+                self.reg[SP] += 1 #move our stack pointer back 1
+                self.pc += 2
+
+
 
             
 
