@@ -86,9 +86,9 @@ class CPU:
         E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
         """
         #flag register
-        self.fl = 0
+        self.fl = 4
         self.reg[self.fl] = "00000LGE"
-        
+        #self.reg[self.fl] = 0b00000000
         
 
 
@@ -174,7 +174,23 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
-       
+        elif op == "CMP":
+            """
+            The flags register FL holds the current flags status. These flags can change based on the 
+            operands given to the CMP opcode. The register is made up of 8 bits. If a particular bit is set, 
+            that flag is "true".
+            FL bits: 00000LGE
+            """
+            
+            #E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
+            if reg_a == reg_b:
+                self.reg[self.fl] = 0b00000001
+            elif reg_a < reg_b:
+                self.reg[self.fl] = 0b00000100
+            elif reg_a > reg_b:
+                self.reg[self.fl] = 0b00000010
+  
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -313,7 +329,14 @@ class CPU:
                 # Pop the value from the top of the stack and store it in the PC.
                 self.pc = self.ram[self.reg[SP]]
                 self.reg[SP] += 1
-            
+            elif opcode == CMP:
+                #pass the opcode and the values in the registers at 1 byte and 2 bytes after the 
+                #program counter in memory
+                self.alu("CMP", self.reg[operand_a], self.reg[operand_b])
+                #move the program counter to the next intruction after the values at pc + 1 and pc + 2
+                self.pc += 3
+           
+
                 
             
 
