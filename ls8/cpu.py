@@ -86,7 +86,7 @@ class CPU:
         E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
         """
         #flag register
-        self.fl = 4
+        self.fl = 3
         self.reg[self.fl] = "00000LGE"
         #self.reg[self.fl] = 0b00000000
         
@@ -354,7 +354,7 @@ class CPU:
 
             elif opcode == JNE:
                 #If E flag is clear (false, 0), jump to the address stored in the given register.
-                if self.reg[self.fl] == 0b00000000: 
+                if self.reg[self.fl] == 0b00000100 or self.reg[self.fl] == 0b00000010: 
                     address = self.reg[operand_a] 
 
                     #Set the PC to the address stored in the given register.
