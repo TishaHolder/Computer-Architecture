@@ -2,10 +2,14 @@
 
 # This comment and blank line is here to make sure
 # they are handled correctly by the file reading code.
+# The binary numeric value on the left in the print8.ls8 code below is either:
+# the machine code value of the instruction (e.g. 10000010 for LDI), also known as the opcode
+# or
+# one of the opcode's arguments (e.g. 00000000 for R0 or 00001000 for the value 8), also known as the operands.
 
 10000010 # LDI R0,8
-00000000
-00001000
+00000000 
+00001000 
 01000111 # PRN R0
-00000000
+00000000 
 00000001 # HLT

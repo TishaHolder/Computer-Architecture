@@ -1,12 +1,12 @@
 10000010 # LDI R0,8
 00000000
-00001000
+00001000 #sets the value of register 0 to 8
 10000010 # LDI R1,9
 00000001
-00001001
+00001001 #sets tge value of register 1 to 9
 10100010 # MUL R0,R1
 00000000
-00000001
+00000001 #multiplies the values in register 0 and register 1 and stores the result in register 0
 01000111 # PRN R0
-00000000
+00000000 #prints the numberic value stored in register 0 (9*8 = 72)
 00000001 # HLT
