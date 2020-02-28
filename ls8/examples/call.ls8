@@ -1,10 +1,10 @@
-10000010 # LDI R1,MULT2PRINT
+10000010 # LDI R1,MULT2PRINT - sets the value of R1 to 24
 00000001
 00011000
-10000010 # LDI R0,10
+10000010 # LDI R0,10 - sets the value in R0 to 10
 00000000
 00001010
-01010000 # CALL R1
+01010000 # CALL R1 - call register 1 - the address of the instruction directly after call is pushed on to the stack
 00000001
 10000010 # LDI R0,15
 00000000

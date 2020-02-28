@@ -24,6 +24,12 @@ PUSH = 0b01000101
 #Increment SP.
 POP = 0b01000110
 
+CALL = 0b01010000 
+
+RET = 0b00010001
+
+ADD = 0b10100000
+
 # R7 is reserved as the stack pointer (SP)
 # The SP points at the value at the top of the stack (most recently pushed), 
 # or at address F4 (0xF4) (Key pressed) F4 Holds the most recent key pressed on the keyboard if the stack is empty.
@@ -209,6 +215,12 @@ class CPU:
             elif opcode == PRN:                
                 print(self.reg[operand_a])
                 self.pc +=2
+            elif opcode == ADD:
+                # ADD 2 registers, store the result in 1st reg
+                reg_a = self.ram[self.pc + 1]
+                reg_b = self.ram[self.pc + 2]
+                self.reg[reg_a] += self.reg[reg_b]
+                self.pc += 3
 
             #Multiply the values in two registers together and store the result in registerA.
             elif opcode == MUL: 
@@ -224,16 +236,20 @@ class CPU:
             elif opcode == PUSH:
                 # grab the register argument
                 #pc + 1 - the program counter is going to grab the register that we are looking at
+                #we start by looking at the opcode so we need to pc + 1 to get to the register
                 register = self.ram[self.pc + 1] #get register number from memory (for eg. R0)
                 #then we can get our value from that register                
                 val = self.reg[register] #then we look in that register to get the value that we are going to push
                 # Decrement the SP or stack pointer => R7
-                # the SP holds the address of wherever the top of our stack is
+                # the SP holds the address of wherever the top of our stack 
+                # decrment stack pointer when we push a value off???
                 self.reg[SP] -= 1
                 # Copy the value in the given register to the address pointed to by SP.
                 # push the value in the given register on to our stack
                 # set that value to the value we got from our register
                 self.ram[self.reg[SP]] = val #points to the address that is at the top of our stack
+                #+= 2 because the last pc + 1 put us at the register, we need to increment 2 places
+                #to get to the other opcode
                 self.pc += 2        
 
             elif opcode == POP:
@@ -246,7 +262,28 @@ class CPU:
                 self.reg[register] = val
                 # Increment SP.
                 self.reg[SP] += 1 #move our stack pointer back 1
+                #+= 2 because the last pc + 1 put us at the register, we need to increment 2 places
+                #to get to the other opcode
                 self.pc += 2
+            elif opcode == CALL:
+                # The address of the instruction directly after CALL
+                # is pushed onto the stack. This allows us to return to where we left off 
+                # when the subroutine finishes executing.
+                self.reg[SP] -= 1
+                self.ram[self.reg[SP]] = self.pc + 2
+                # This allows us to return to where we left off
+                # when the subroutine finishes executing.
+                # The PC is set to the address stored in the given register.
+                register = self.ram[self.pc + 1]
+                self.pc = self.reg[register]
+                # We jump to that location in RAM and execute the first
+                # instruction in the subroutine. The PC can move forward or
+                # backwards from its current location.
+            elif opcode == RET:
+                # Return from subroutine.
+                # Pop the value from the top of the stack and store it in the PC.
+                self.pc = self.ram[self.reg[SP]]
+                self.reg[SP] += 1
 
 
 
