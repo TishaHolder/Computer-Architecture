@@ -185,10 +185,10 @@ class CPU:
             #E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
             if reg_a == reg_b:
                 self.reg[self.fl] = 0b00000001
-            elif reg_a < reg_b:
-                self.reg[self.fl] = 0b00000100
             elif reg_a > reg_b:
                 self.reg[self.fl] = 0b00000010
+            elif reg_a < reg_b:
+                self.reg[self.fl] = 0b00000100          
   
 
         else:
@@ -335,7 +335,14 @@ class CPU:
                 self.alu("CMP", self.reg[operand_a], self.reg[operand_b])
                 #move the program counter to the next intruction after the values at pc + 1 and pc + 2
                 self.pc += 3
-           
+            elif opcode == JMP:
+                #Jump to the address stored in the given register (1 byte after the program counter).                
+                address = self.reg[operand_a]
+
+                #Set the PC to the address stored in the given register.
+                self.pc = address
+            
+
 
                 
             
