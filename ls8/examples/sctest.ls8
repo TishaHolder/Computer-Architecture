@@ -1,35 +1,35 @@
-10000010 # LDI R0,10
+10000010 # LDI R0,10 - set the value in register 0 to 10
 00000000
 00001010
-10000010 # LDI R1,20
+10000010 # LDI R1,20 - set the value in register 1 to 20
 00000001
 00010100
-10000010 # LDI R2,TEST1
+10000010 # LDI R2,TEST1 - set the value in register 2 to 19
 00000010
 00010011
-10100111 # CMP R0,R1
+10100111 # CMP R0,R1 - compare the values in register 0 and register 1 - set E flag to false
 00000000
 00000001
-01010101 # JEQ R2
+01010101 # JEQ R2 - if equal flag is true jump to address stored in register 2, if not to + 2
 00000010
-10000010 # LDI R3,1
+10000010 # LDI R3,1 - set the value in register 3 to 1
 00000011
 00000001
-01000111 # PRN R3
+01000111 # PRN R3 - print value in register 3 (1)
 00000011
 # TEST1 (address 19):
-10000010 # LDI R2,TEST2
+10000010 # LDI R2,TEST2 - set the value in register 2 to 32
 00000010
 00100000
-10100111 # CMP R0,R1
+10100111 # CMP R0,R1 - compare values in register 0 (10) and register 1(20)
 00000000
 00000001
-01010110 # JNE R2
+01010110 # JNE R2 - E flag is clear so jump to R2
 00000010
-10000010 # LDI R3,2
+10000010 # LDI R3,2 - set the value in register 3 to 2
 00000011
 00000010
-01000111 # PRN R3
+01000111 # PRN R3 - print value in register 3 (2)
 00000011
 # TEST2 (address 32):
 10000010 # LDI R1,10

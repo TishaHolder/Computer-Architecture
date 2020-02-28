@@ -30,6 +30,19 @@ RET = 0b00010001
 
 ADD = 0b10100000
 
+#This is an instruction handled by the ALU.
+CMP = 0b10100111
+
+#Jump to the address stored in the given register.
+#Set the PC to the address stored in the given register.
+JMP= 0b01010100 
+
+#If equal flag is set (true), jump to the address stored in the given register.
+JEQ = 0b01010101
+
+#If E flag is clear (false, 0), jump to the address stored in the given register.
+JNE = 0b01010110
+
 # R7 is reserved as the stack pointer (SP)
 # The SP points at the value at the top of the stack (most recently pushed), 
 # or at address F4 (0xF4) (Key pressed) F4 Holds the most recent key pressed on the keyboard if the stack is empty.
@@ -62,6 +75,21 @@ class CPU:
         self.pc = 0 
 
         self.ram = [0] * 256 #hold 256 bytes of memory (values 0 to 255)
+
+        #The flags register FL holds the current flags status. These flags can change based on the 
+        #operands given to the CMP opcode.
+        """
+        The register is made up of 8 bits. If a particular bit is set, that flag is "true".
+        FL bits: 00000LGE
+        L Less-than: during a CMP, set to 1 if registerA is less than registerB, zero otherwise.
+        G Greater-than: during a CMP, set to 1 if registerA is greater than registerB, zero otherwise.
+        E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
+        """
+        #flag register
+        self.fl = 0
+        self.reg[self.fl] = "00000LGE"
+        
+        
 
 
     #In CPU, add method ram_read() and ram_write() that access the RAM inside the CPU object.
@@ -146,6 +174,7 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
+       
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -242,7 +271,7 @@ class CPU:
                 val = self.reg[register] #then we look in that register to get the value that we are going to push
                 # Decrement the SP or stack pointer => R7
                 # the SP holds the address of wherever the top of our stack 
-                # decrment stack pointer when we push a value off???
+                # decrment stack pointer when we push a value on to the stack
                 self.reg[SP] -= 1
                 # Copy the value in the given register to the address pointed to by SP.
                 # push the value in the given register on to our stack
@@ -284,6 +313,10 @@ class CPU:
                 # Pop the value from the top of the stack and store it in the PC.
                 self.pc = self.ram[self.reg[SP]]
                 self.reg[SP] += 1
+            
+                
+            
+
 
 
 
